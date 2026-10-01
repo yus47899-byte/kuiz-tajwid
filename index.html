@@ -54,6 +54,13 @@
         color: #064e45;
     }
     .question { font-size: 19px; font-weight: bold; margin-bottom: 18px; }
+    .arabic .ul {
+        text-decoration: underline;
+        text-decoration-color: #d83939;
+        text-decoration-thickness: 3px;
+        text-underline-offset: 10px;
+        text-decoration-skip-ink: none;
+    }
     .option {
         display: block;
         padding: 12px 14px;
@@ -109,6 +116,11 @@
         border: 2px solid #ddd; border-radius: 10px; font-family: inherit;
     }
     .field input[type="text"]:focus { outline: none; border-color: #128c7e; }
+    .field select {
+        width: 100%; padding: 12px 14px; font-size: 17px;
+        border: 2px solid #ddd; border-radius: 10px; font-family: inherit; background: #fff;
+    }
+    .field select:focus { outline: none; border-color: #128c7e; }
     #startBtn { background: #128c7e; color: white; width: 100%; margin: 10px 0 0; }
     #startBtn:hover { background: #075e54; }
     #landingError { color: #d83939; font-size: 15px; min-height: 22px; text-align: center; margin-top: 8px; }
@@ -121,6 +133,8 @@
     #submitStatus.err { color: #d83939; }
     #submitStatus.pending { color: #8a6d00; }
     #retrySend { background: #128c7e; color: white; display: none; }
+    #againBtn { background: #075e54; color: white; display: none; margin-top: 16px; }
+    #attemptsNote { margin-top: 10px; font-size: 15px; color: #555; }
     #quizWrap { display: none; }
 
     @media (max-width: 600px) {
@@ -141,16 +155,12 @@
 
 <div class="quiz-card" id="landing">
     <h2>Selamat Datang</h2>
-    <p class="intro">Sila masukkan maklumat anda sebelum memulakan kuiz.</p>
+    <p class="intro">Sila masukkan nama anda sebelum memulakan kuiz.</p>
     <div class="field">
         <label for="studentName">Nama</label>
         <input type="text" id="studentName" maxlength="80" autocomplete="name" placeholder="Nama penuh">
     </div>
-    <div class="field">
-        <label for="studentClass">Kelas</label>
-        <input type="text" id="studentClass" maxlength="40" placeholder="Contoh: Kelas A / Tahap 1">
-    </div>
-    <p class="intro" style="font-size:14px;margin:6px 0 0;">Kuiz ini hanya boleh dijawab <strong>sekali</strong> sahaja.</p>
+    <p class="intro" style="font-size:14px;margin:6px 0 0;">Anda boleh menjawab kuiz ini sehingga <strong id="maxText">3 kali</strong> sahaja.</p>
     <button type="button" id="startBtn" onclick="startQuiz()">Mula Kuiz</button>
     <div id="landingError"></div>
 </div>
@@ -161,7 +171,7 @@
 
     <div class="quiz-card" id="card1">
         <span class="question-number">Soalan 1</span>
-        <div class="arabic">وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِنْ مُدَّكِرٍ</div>
+        <div class="arabic">وَلَقَدْ <span class="ul">يَسَّرْنَا</span> ٱلْقُرْءَانَ <span class="ul">لِلذِّكْرِ</span> فَهَلْ مِن مُّدَّكِرٍ</div>
         <div class="question">Apakah pilihan yang paling tepat untuk melengkapkan maksud ayat tersebut?</div>
         <label class="option"><input type="radio" name="q1" value="A">A. Memudahkan — peringatan dan pelajaran</label>
         <label class="option"><input type="radio" name="q1" value="B">B. Menyusahkan — peringatan dan pelajaran</label>
@@ -182,7 +192,7 @@
 
     <div class="quiz-card" id="card3">
         <span class="question-number">Soalan 3</span>
-        <div class="arabic">خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ</div>
+        <div class="arabic">خَيْرُكُمْ مَنْ <span class="ul">تَعَلَّمَ</span> الْقُرْآنَ <span class="ul">وَعَلَّمَهُ</span></div>
         <div class="question">Sebaik-baik kalian adalah yang ____________ dan ____________ Al-Quran.</div>
         <label class="option"><input type="radio" name="q3" value="A">A. Membaca — menghafaz</label>
         <label class="option"><input type="radio" name="q3" value="B">B. Mempelajari — mengajarkan</label>
@@ -192,7 +202,7 @@
 
     <div class="quiz-card" id="card4">
         <span class="question-number">Soalan 4</span>
-        <div class="arabic">وَوَجَدَكَ ضَآلًّا فَهَدَىٰ</div>
+        <div class="arabic">وَوَجَدَكَ <span class="ul">ضَآلًّا</span> فَهَدَىٰ</div>
         <div class="question">Apakah hukum tajwid pada lafaz <strong>ضَآلًّا</strong> (ḍāllan)?</div>
         <label class="option"><input type="radio" name="q4" value="A">A. Mad Ṭabī‘ī</label>
         <label class="option"><input type="radio" name="q4" value="B">B. Mad Wājib Muttaṣil</label>
@@ -202,7 +212,7 @@
 
     <div class="quiz-card" id="card5">
         <span class="question-number">Soalan 5</span>
-        <div class="arabic">وَٱلَّيْلِ إِذَا سَجَىٰ</div>
+        <div class="arabic"><span class="ul">وَٱلَّيْلِ</span> إِذَا سَجَىٰ</div>
         <div class="question">Apakah hukum tajwid pada lafaz <strong>وَٱلَّيْلِ</strong>?</div>
         <label class="option"><input type="radio" name="q5" value="A">A. Alif Lām Qamariyyah</label>
         <label class="option"><input type="radio" name="q5" value="B">B. Alif Lām Shamsiyyah</label>
@@ -212,11 +222,11 @@
 
     <div class="quiz-card" id="card6">
         <span class="question-number">Soalan 6</span>
-        <div class="arabic">وَلَلْآخِرَةُ خَيْرٌ لَّكَ مِنَ الْأُولَىٰ</div>
+        <div class="arabic"><span class="ul">وَلَلْآخِرَةُ</span> <span class="ul">خَيْرٌ لَّكَ</span> مِنَ <span class="ul">الْأُولَىٰ</span></div>
         <div class="question">Antara berikut, kombinasi hukum tajwid manakah yang terdapat dalam ayat ini?</div>
         <label class="option"><input type="radio" name="q6" value="A">A. Ikhfā’ Ḥaqīqī, Iqlāb dan Mad Lāzim</label>
         <label class="option"><input type="radio" name="q6" value="B">B. Alif Lām Shamsiyyah, Idghām Bi Ghunnah dan Qalqalah</label>
-        <label class="option"><input type="radio" name="q6" value="C">C. Alif Lām Qamariyyah, Idghām Bilā Ghunnah dan Mad</label>
+        <label class="option"><input type="radio" name="q6" value="C">C. Alif Lām Qamariyyah, Idghām Bilā Ghunnah dan Mad Aṣlī</label>
         <label class="option"><input type="radio" name="q6" value="D">D. Iẓhār Shafawī, Ikhfā’ Shafawī dan Qalqalah Kubrā</label>
     </div>
 
@@ -232,6 +242,8 @@
     <p id="message"></p>
     <div id="submitStatus"></div>
     <button type="button" id="retrySend" onclick="sendResult(lastPayload)">Hantar Semula</button>
+    <div id="attemptsNote"></div>
+    <button type="button" id="againBtn" onclick="retryQuiz()">Cuba Semula</button>
 </div>
 
 </div><!-- /quizWrap -->
@@ -246,39 +258,59 @@
 <script>
 /* ===== SETTINGS =====
    Paste your Google Apps Script Web App URL here (ends with /exec).
-   Leave empty to test the quiz without sending results or enforcing one attempt. */
+   Leave empty to test the quiz without sending results or enforcing the attempt limit.
+   MAX_ATTEMPTS must match MAX_ATTEMPTS in Code.gs (the sheet enforces the real limit). */
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbzkYB1izEptn4ZTMU95noOG07QHFUvQ7agkAtyit9pn9gp0meUXX44WSVpfMeihvuonHw/exec";
 const QUIZ_ID = "kuiz-quran-tajwid";
+const MAX_ATTEMPTS = 3;
 
 const correctAnswers = { q1: "A", q2: "A", q3: "B", q4: "C", q5: "B", q6: "C" };
 
-let student = { name: "", cls: "" };
-let attempt = 0;
+let studentName = "";
+let attemptsUsed = 0;
+let maxAttempts = MAX_ATTEMPTS;
 let lastPayload = null;
+
+document.getElementById("maxText").textContent = MAX_ATTEMPTS + " kali";
+
+function newId() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return "id-" + Date.now() + "-" + Math.random().toString(36).slice(2, 10);
+}
+
+function updateBar() {
+    document.getElementById("studentBar").textContent =
+        "Nama: " + studentName + "  |  Percubaan: " + (attemptsUsed + 1) + " / " + maxAttempts;
+}
 
 async function startQuiz() {
     const name = document.getElementById("studentName").value.trim();
-    const cls = document.getElementById("studentClass").value.trim();
     const err = document.getElementById("landingError");
     const btn = document.getElementById("startBtn");
 
-    if (!name || !cls) {
-        err.textContent = "Sila isi nama dan kelas anda.";
+    if (!name) {
+        err.textContent = "Sila isi nama anda.";
         return;
     }
     err.textContent = "";
 
-    // One attempt per student: ask the sheet whether this name + class already exists
+    attemptsUsed = 0;
+    maxAttempts = MAX_ATTEMPTS;
+
+    // Ask the sheet how many attempts this name has already used
     if (SHEET_URL) {
         btn.disabled = true;
         btn.textContent = "Menyemak...";
         try {
             const url = SHEET_URL + "?action=check&quiz=" + encodeURIComponent(QUIZ_ID) +
-                "&name=" + encodeURIComponent(name) + "&class=" + encodeURIComponent(cls);
+                "&name=" + encodeURIComponent(name);
             const res = await fetch(url);
             const data = await res.json();
-            if (data.exists) {
-                err.textContent = "Keputusan untuk nama dan kelas ini telah direkodkan. Kuiz hanya boleh dijawab sekali. Sila hubungi guru jika ada kesilapan.";
+            attemptsUsed = Number(data.attempts) || 0;
+            maxAttempts = Number(data.max) || MAX_ATTEMPTS;
+            if (attemptsUsed >= maxAttempts) {
+                err.textContent = "Anda telah menggunakan semua " + maxAttempts +
+                    " percubaan. Sila hubungi guru jika ada kesilapan.";
                 btn.disabled = false;
                 btn.textContent = "Mula Kuiz";
                 return;
@@ -293,8 +325,8 @@ async function startQuiz() {
         btn.textContent = "Mula Kuiz";
     }
 
-    student = { name: name, cls: cls };
-    document.getElementById("studentBar").textContent = "Nama: " + name + "  |  Kelas: " + cls;
+    studentName = name;
+    updateBar();
     document.getElementById("landing").style.display = "none";
     document.getElementById("quizWrap").style.display = "block";
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -306,18 +338,32 @@ function setStatus(text, cls) {
     el.className = cls || "";
 }
 
+// After a result is safely sent, let the student try again if attempts remain
+function afterSend() {
+    const left = maxAttempts - attemptsUsed;
+    const note = document.getElementById("attemptsNote");
+    if (left > 0) {
+        note.textContent = "Anda masih ada " + left + " percubaan lagi.";
+        document.getElementById("againBtn").style.display = "inline-block";
+    } else {
+        note.textContent = "Anda telah menggunakan semua " + maxAttempts + " percubaan.";
+    }
+}
+
 function sendResult(payload) {
     const retryBtn = document.getElementById("retrySend");
     retryBtn.style.display = "none";
 
     if (!SHEET_URL) {
         setStatus("Penghantaran keputusan belum diaktifkan (SHEET_URL kosong).", "err");
+        afterSend();
         return;
     }
 
     setStatus("Menghantar keputusan...", "pending");
 
     // text/plain avoids a CORS preflight, which Apps Script does not handle.
+    // The payload id lets the sheet ignore a repeated send of the same attempt.
     fetch(SHEET_URL, {
         method: "POST",
         mode: "no-cors",
@@ -325,6 +371,7 @@ function sendResult(payload) {
         body: JSON.stringify(payload)
     }).then(function () {
         setStatus("Keputusan anda telah dihantar. Terima kasih!", "ok");
+        afterSend();
     }).catch(function () {
         setStatus("Keputusan gagal dihantar. Semak sambungan internet anda.", "err");
         retryBtn.style.display = "inline-block";
@@ -381,12 +428,12 @@ function checkQuiz() {
     document.getElementById("submitBtn").disabled = true;
     document.querySelectorAll('#quizForm input[type="radio"]').forEach(function (r) { r.disabled = true; });
 
-    attempt++;
+    attemptsUsed++;
     lastPayload = {
+        id: newId(),
         quiz: QUIZ_ID,
-        name: student.name,
-        class: student.cls,
-        attempt: attempt,
+        name: studentName,
+        attempt: attemptsUsed,
         score: score,
         total: totalQuestions,
         percentage: percentage,
@@ -395,6 +442,20 @@ function checkQuiz() {
     sendResult(lastPayload);
 
     document.getElementById("result").scrollIntoView({ behavior: "smooth" });
+}
+
+function retryQuiz() {
+    document.getElementById("quizForm").reset();
+    document.querySelectorAll('#quizForm input[type="radio"]').forEach(function (r) { r.disabled = false; });
+    document.getElementById("submitBtn").disabled = false;
+    document.querySelectorAll(".option").forEach(function (o) { o.classList.remove("correct", "wrong"); });
+    document.getElementById("result").style.display = "none";
+    document.getElementById("againBtn").style.display = "none";
+    document.getElementById("attemptsNote").textContent = "";
+    setStatus("", "");
+    lastPayload = null;
+    updateBar();
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 </script>
 
