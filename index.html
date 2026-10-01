@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kuiz Al-Quran &amp; Tajwid</title>
+<style>
+    :root {
+        box-sizing: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f4f7f5;
+        color: #222;
+        line-height: 1.6;
+    }
+    .header {
+        background: linear-gradient(135deg, #075e54, #128c7e);
+        color: white;
+        text-align: center;
+        padding: 30px 20px;
+    }
+    .header h1 { margin: 0; font-size: 30px; }
+    .header p { margin: 8px 0 0; font-size: 17px; }
+    .container { max-width: 900px; margin: 30px auto; padding: 0 15px; }
+    .quiz-card {
+        background: white;
+        padding: 25px;
+        margin-bottom: 25px;
+        border-radius: 14px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+    .question-number {
+        display: inline-block;
+        background: #128c7e;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-weight: bold;
+        margin-bottom: 12px;
+    }
+    .arabic {
+        direction: rtl;
+        text-align: center;
+        font-family: "Traditional Arabic", "Amiri", serif;
+        font-size: 34px;
+        line-height: 1.9;
+        margin: 15px 0;
+        color: #064e45;
+    }
+    .question { font-size: 19px; font-weight: bold; margin-bottom: 18px; }
+    .option {
+        display: block;
+        padding: 12px 14px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        margin: 9px 0;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .option:hover { background: #eef9f6; border-color: #128c7e; }
+    input[type="radio"] { margin-right: 10px; transform: scale(1.2); }
+    .buttons { text-align: center; margin: 30px 0; }
+    button {
+        border: none;
+        border-radius: 10px;
+        padding: 14px 28px;
+        margin: 7px;
+        font-size: 17px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    #submitBtn { background: #128c7e; color: white; }
+    #submitBtn:hover { background: #075e54; }
+    #resetBtn { background: #e6e6e6; color: #333; }
+    #result {
+        display: none;
+        background: #fff;
+        padding: 25px;
+        border-radius: 14px;
+        text-align: center;
+        margin: 20px 0 40px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+    #score { font-size: 27px; color: #075e54; font-weight: bold; }
+    .correct { border-color: #20a85b !important; background: #e8f8ef !important; }
+    .wrong { border-color: #d83939 !important; background: #fdeaea !important; }
+    .footer {
+        background: #075e54;
+        color: white;
+        padding: 25px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    /* Landing */
+    #landing { max-width: 520px; margin: 0 auto; }
+    #landing h2 { margin-top: 0; color: #075e54; text-align: center; }
+    #landing p.intro { text-align: center; color: #555; margin-top: 0; }
+    .field { margin: 16px 0; }
+    .field label { display: block; font-weight: bold; margin-bottom: 6px; }
+    .field input[type="text"] {
+        width: 100%; padding: 12px 14px; font-size: 17px;
+        border: 2px solid #ddd; border-radius: 10px; font-family: inherit;
+    }
+    .field input[type="text"]:focus { outline: none; border-color: #128c7e; }
+    #startBtn { background: #128c7e; color: white; width: 100%; margin: 10px 0 0; }
+    #startBtn:hover { background: #075e54; }
+    #landingError { color: #d83939; font-size: 15px; min-height: 22px; text-align: center; margin-top: 8px; }
+    #studentBar {
+        background: #e8f8ef; border: 1px solid #b9e6cc; border-radius: 10px;
+        padding: 10px 14px; margin-bottom: 20px; font-size: 15px;
+    }
+    #submitStatus { margin-top: 12px; font-size: 16px; font-weight: bold; }
+    #submitStatus.ok { color: #20a85b; }
+    #submitStatus.err { color: #d83939; }
+    #submitStatus.pending { color: #8a6d00; }
+    #retrySend { background: #128c7e; color: white; display: none; }
+    #quizWrap { display: none; }
+
+    @media (max-width: 600px) {
+        .header h1 { font-size: 24px; }
+        .arabic { font-size: 28px; }
+        .question { font-size: 17px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Kuiz Al-Quran &amp; Tajwid</h1>
+    <p>Ujian Teori Mari Belajar dan Mengajar Al-Quran</p>
+</div>
+
+<div class="container">
+
+<div class="quiz-card" id="landing">
+    <h2>Selamat Datang</h2>
+    <p class="intro">Sila masukkan maklumat anda sebelum memulakan kuiz.</p>
+    <div class="field">
+        <label for="studentName">Nama</label>
+        <input type="text" id="studentName" maxlength="80" autocomplete="name" placeholder="Nama penuh">
+    </div>
+    <div class="field">
+        <label for="studentClass">Kelas</label>
+        <input type="text" id="studentClass" maxlength="40" placeholder="Contoh: Kelas A / Tahap 1">
+    </div>
+    <p class="intro" style="font-size:14px;margin:6px 0 0;">Kuiz ini hanya boleh dijawab <strong>sekali</strong> sahaja.</p>
+    <button type="button" id="startBtn" onclick="startQuiz()">Mula Kuiz</button>
+    <div id="landingError"></div>
+</div>
+
+<div id="quizWrap">
+<div id="studentBar"></div>
+<form id="quizForm">
+
+    <div class="quiz-card" id="card1">
+        <span class="question-number">Soalan 1</span>
+        <div class="arabic">وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِنْ مُدَّكِرٍ</div>
+        <div class="question">Apakah pilihan yang paling tepat untuk melengkapkan maksud ayat tersebut?</div>
+        <label class="option"><input type="radio" name="q1" value="A">A. Memudahkan — peringatan dan pelajaran</label>
+        <label class="option"><input type="radio" name="q1" value="B">B. Menyusahkan — peringatan dan pelajaran</label>
+        <label class="option"><input type="radio" name="q1" value="C">C. Mengajarkan — pandai dan bijak</label>
+        <label class="option"><input type="radio" name="q1" value="D">D. Memudahkan — bacaan dan hafazan</label>
+    </div>
+
+    <div class="quiz-card" id="card2">
+        <span class="question-number">Soalan 2</span>
+        <div class="question">
+            Tidaklah sekelompok orang berkumpul di suatu masjid (rumah Allah) untuk membaca Al-Quran, melainkan mereka akan diliputi ____________, rahmat, dan dikelilingi ____________, serta Allah akan menyebut-nyebut mereka pada malaikat-malaikat yang berada di sisi-Nya.
+        </div>
+        <label class="option"><input type="radio" name="q2" value="A">A. Ketenangan — para malaikat</label>
+        <label class="option"><input type="radio" name="q2" value="B">B. Keberkatan — para nabi</label>
+        <label class="option"><input type="radio" name="q2" value="C">C. Cahaya — orang-orang soleh</label>
+        <label class="option"><input type="radio" name="q2" value="D">D. Keampunan — para sahabat</label>
+    </div>
+
+    <div class="quiz-card" id="card3">
+        <span class="question-number">Soalan 3</span>
+        <div class="arabic">خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ</div>
+        <div class="question">Sebaik-baik kalian adalah yang ____________ dan ____________ Al-Quran.</div>
+        <label class="option"><input type="radio" name="q3" value="A">A. Membaca — menghafaz</label>
+        <label class="option"><input type="radio" name="q3" value="B">B. Mempelajari — mengajarkan</label>
+        <label class="option"><input type="radio" name="q3" value="C">C. Mendengar — menulis</label>
+        <label class="option"><input type="radio" name="q3" value="D">D. Menghafaz — mentafsirkan</label>
+    </div>
+
+    <div class="quiz-card" id="card4">
+        <span class="question-number">Soalan 4</span>
+        <div class="arabic">وَوَجَدَكَ ضَآلًّا فَهَدَىٰ</div>
+        <div class="question">Apakah hukum tajwid pada lafaz <strong>ضَآلًّا</strong> (ḍāllan)?</div>
+        <label class="option"><input type="radio" name="q4" value="A">A. Mad Ṭabī‘ī</label>
+        <label class="option"><input type="radio" name="q4" value="B">B. Mad Wājib Muttaṣil</label>
+        <label class="option"><input type="radio" name="q4" value="C">C. Mad Lāzim Kalimī Muthaqqal</label>
+        <label class="option"><input type="radio" name="q4" value="D">D. Mad ‘Āriḍ li al-Sukūn</label>
+    </div>
+
+    <div class="quiz-card" id="card5">
+        <span class="question-number">Soalan 5</span>
+        <div class="arabic">وَٱلَّيْلِ إِذَا سَجَىٰ</div>
+        <div class="question">Apakah hukum tajwid pada lafaz <strong>وَٱلَّيْلِ</strong>?</div>
+        <label class="option"><input type="radio" name="q5" value="A">A. Alif Lām Qamariyyah</label>
+        <label class="option"><input type="radio" name="q5" value="B">B. Alif Lām Shamsiyyah</label>
+        <label class="option"><input type="radio" name="q5" value="C">C. Ikhfā’ Ḥaqīqī</label>
+        <label class="option"><input type="radio" name="q5" value="D">D. Iqlāb</label>
+    </div>
+
+    <div class="quiz-card" id="card6">
+        <span class="question-number">Soalan 6</span>
+        <div class="arabic">وَلَلْآخِرَةُ خَيْرٌ لَّكَ مِنَ الْأُولَىٰ</div>
+        <div class="question">Antara berikut, kombinasi hukum tajwid manakah yang terdapat dalam ayat ini?</div>
+        <label class="option"><input type="radio" name="q6" value="A">A. Ikhfā’ Ḥaqīqī, Iqlāb dan Mad Lāzim</label>
+        <label class="option"><input type="radio" name="q6" value="B">B. Alif Lām Shamsiyyah, Idghām Bi Ghunnah dan Qalqalah</label>
+        <label class="option"><input type="radio" name="q6" value="C">C. Alif Lām Qamariyyah, Idghām Bilā Ghunnah dan Mad</label>
+        <label class="option"><input type="radio" name="q6" value="D">D. Iẓhār Shafawī, Ikhfā’ Shafawī dan Qalqalah Kubrā</label>
+    </div>
+
+    <div class="buttons">
+        <button type="button" id="submitBtn" onclick="checkQuiz()">Semak Jawapan</button>
+    </div>
+
+</form>
+
+<div id="result">
+    <h2>Keputusan Kuiz</h2>
+    <div id="score"></div>
+    <p id="message"></p>
+    <div id="submitStatus"></div>
+    <button type="button" id="retrySend" onclick="sendResult(lastPayload)">Hantar Semula</button>
+</div>
+
+</div><!-- /quizWrap -->
+
+</div>
+
+<div class="footer">
+    <strong>ATTARTIL QI</strong><br>
+    Pembelajaran Al-Quran &amp; Tajwid
+</div>
+
+<script>
+/* ===== SETTINGS =====
+   Paste your Google Apps Script Web App URL here (ends with /exec).
+   Leave empty to test the quiz without sending results or enforcing one attempt. */
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbzkYB1izEptn4ZTMU95noOG07QHFUvQ7agkAtyit9pn9gp0meUXX44WSVpfMeihvuonHw/exec";
+const QUIZ_ID = "kuiz-quran-tajwid";
+
+const correctAnswers = { q1: "A", q2: "A", q3: "B", q4: "C", q5: "B", q6: "C" };
+
+let student = { name: "", cls: "" };
+let attempt = 0;
+let lastPayload = null;
+
+async function startQuiz() {
+    const name = document.getElementById("studentName").value.trim();
+    const cls = document.getElementById("studentClass").value.trim();
+    const err = document.getElementById("landingError");
+    const btn = document.getElementById("startBtn");
+
+    if (!name || !cls) {
+        err.textContent = "Sila isi nama dan kelas anda.";
+        return;
+    }
+    err.textContent = "";
+
+    // One attempt per student: ask the sheet whether this name + class already exists
+    if (SHEET_URL) {
+        btn.disabled = true;
+        btn.textContent = "Menyemak...";
+        try {
+            const url = SHEET_URL + "?action=check&quiz=" + encodeURIComponent(QUIZ_ID) +
+                "&name=" + encodeURIComponent(name) + "&class=" + encodeURIComponent(cls);
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data.exists) {
+                err.textContent = "Keputusan untuk nama dan kelas ini telah direkodkan. Kuiz hanya boleh dijawab sekali. Sila hubungi guru jika ada kesilapan.";
+                btn.disabled = false;
+                btn.textContent = "Mula Kuiz";
+                return;
+            }
+        } catch (e) {
+            err.textContent = "Tidak dapat menyemak rekod. Semak sambungan internet dan cuba lagi.";
+            btn.disabled = false;
+            btn.textContent = "Mula Kuiz";
+            return;
+        }
+        btn.disabled = false;
+        btn.textContent = "Mula Kuiz";
+    }
+
+    student = { name: name, cls: cls };
+    document.getElementById("studentBar").textContent = "Nama: " + name + "  |  Kelas: " + cls;
+    document.getElementById("landing").style.display = "none";
+    document.getElementById("quizWrap").style.display = "block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function setStatus(text, cls) {
+    const el = document.getElementById("submitStatus");
+    el.textContent = text;
+    el.className = cls || "";
+}
+
+function sendResult(payload) {
+    const retryBtn = document.getElementById("retrySend");
+    retryBtn.style.display = "none";
+
+    if (!SHEET_URL) {
+        setStatus("Penghantaran keputusan belum diaktifkan (SHEET_URL kosong).", "err");
+        return;
+    }
+
+    setStatus("Menghantar keputusan...", "pending");
+
+    // text/plain avoids a CORS preflight, which Apps Script does not handle.
+    fetch(SHEET_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+    }).then(function () {
+        setStatus("Keputusan anda telah dihantar. Terima kasih!", "ok");
+    }).catch(function () {
+        setStatus("Keputusan gagal dihantar. Semak sambungan internet anda.", "err");
+        retryBtn.style.display = "inline-block";
+    });
+}
+
+function checkQuiz() {
+    let score = 0;
+    let answered = 0;
+    const answers = {};
+    const totalQuestions = Object.keys(correctAnswers).length;
+
+    for (let i = 1; i <= totalQuestions; i++) {
+        const name = "q" + i;
+        const selected = document.querySelector('input[name="' + name + '"]:checked');
+        const options = document.querySelectorAll('input[name="' + name + '"]');
+
+        options.forEach(function (o) { o.parentElement.classList.remove("correct", "wrong"); });
+
+        if (selected) {
+            answered++;
+            answers[name] = selected.value;
+            if (selected.value === correctAnswers[name]) {
+                score++;
+                selected.parentElement.classList.add("correct");
+            } else {
+                selected.parentElement.classList.add("wrong");
+                options.forEach(function (o) {
+                    if (o.value === correctAnswers[name]) o.parentElement.classList.add("correct");
+                });
+            }
+        } else {
+            answers[name] = "";
+        }
+    }
+
+    if (answered < totalQuestions) {
+        alert("Sila jawab semua soalan sebelum menyemak jawapan.");
+        return;
+    }
+
+    const percentage = Math.round((score / totalQuestions) * 100);
+    document.getElementById("result").style.display = "block";
+    document.getElementById("score").textContent = score + " / " + totalQuestions + " (" + percentage + "%)";
+
+    let message = "";
+    if (percentage === 100) message = "Tahniah! Semua jawapan anda betul.";
+    else if (percentage >= 70) message = "Syabas! Pencapaian yang baik.";
+    else if (percentage >= 50) message = "Baik. Teruskan ulang kaji untuk mengukuhkan kefahaman.";
+    else message = "Teruskan belajar dan cuba semula.";
+    document.getElementById("message").textContent = message;
+
+    // Lock the quiz and submit automatically
+    document.getElementById("submitBtn").disabled = true;
+    document.querySelectorAll('#quizForm input[type="radio"]').forEach(function (r) { r.disabled = true; });
+
+    attempt++;
+    lastPayload = {
+        quiz: QUIZ_ID,
+        name: student.name,
+        class: student.cls,
+        attempt: attempt,
+        score: score,
+        total: totalQuestions,
+        percentage: percentage,
+        answers: answers
+    };
+    sendResult(lastPayload);
+
+    document.getElementById("result").scrollIntoView({ behavior: "smooth" });
+}
+</script>
+
+</body>
+</html>
